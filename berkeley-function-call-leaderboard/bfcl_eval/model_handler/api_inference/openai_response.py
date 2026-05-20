@@ -38,10 +38,10 @@ class OpenAIResponsesHandler(BaseHandler):
 
         kwargs = {}
 
-        if api_key := os.getenv("OPENAI_API_KEY"):
+        if api_key := os.getenv("OPENAI_API_KEY","unused"):
             kwargs["api_key"] = api_key
 
-        if base_url := os.getenv("OPENAI_BASE_URL"):
+        if base_url := os.getenv("OPENAI_BASE_URL","http://localhost:8000/v3"):
             kwargs["base_url"] = base_url
 
         if headers_env := os.getenv("OPENAI_DEFAULT_HEADERS"):
@@ -103,6 +103,9 @@ class OpenAIResponsesHandler(BaseHandler):
             "include": ["reasoning.encrypted_content"],
             "reasoning": {"summary": "auto"},
             "temperature": self.temperature,
+            "max_output_tokens": 2048,
+            "tool_choice": os.getenv("TOOL_CHOICE", "auto"),
+            "extra_body": {"chat_template_kwargs": json.loads(os.getenv("CHAT_TEMPLATE_KWARGS", "{}"))},
         }
 
         # OpenAI reasoning models don't support temperature parameter
@@ -222,6 +225,7 @@ class OpenAIResponsesHandler(BaseHandler):
             "include": ["reasoning.encrypted_content"],
             "reasoning": {"summary": "auto"},
             "temperature": self.temperature,
+            "extra_body": {"chat_template_kwargs": json.loads(os.getenv("CHAT_TEMPLATE_KWARGS", "{}"))},
         }
 
         # OpenAI reasoning models don't support temperature parameter

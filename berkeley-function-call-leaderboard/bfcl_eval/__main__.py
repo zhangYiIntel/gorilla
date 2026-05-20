@@ -120,6 +120,11 @@ def generate(
     ),
     num_gpus: int = typer.Option(1, help="The number of GPUs to use."),
     num_threads: Optional[int] = typer.Option(None, help="The number of threads to use."),
+    num_samples: Optional[int] = typer.Option(
+        None,
+        "--num-samples",
+        help="Only run the first N benchmark entries after category expansion (useful for quick smoke tests).",
+    ),
     gpu_memory_utilization: float = typer.Option(0.9, help="The GPU memory utilization."),
     backend: str = typer.Option("sglang", help="The backend to use for the model."),
     skip_server_setup: bool = typer.Option(
@@ -161,6 +166,7 @@ def generate(
         exclude_state_log=exclude_state_log,
         num_gpus=num_gpus,
         num_threads=num_threads,
+        num_samples=num_samples,
         gpu_memory_utilization=gpu_memory_utilization,
         backend=backend,
         skip_server_setup=skip_server_setup,

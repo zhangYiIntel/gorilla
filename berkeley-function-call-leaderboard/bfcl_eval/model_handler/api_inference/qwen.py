@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Any
 
@@ -28,8 +29,8 @@ class QwenAPIHandler(OpenAICompletionsHandler):
         super().__init__(model_name, temperature, registry_name, is_fc_model, **kwargs)
         self.model_style = ModelStyle.OPENAI_COMPLETIONS
         self.client = OpenAI(
-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-            api_key=os.getenv("QWEN_API_KEY"),
+            base_url=os.getenv("OPENAI_BASE_URL", "https://localhost:8000/v3"),
+            api_key=os.getenv("QWEN_API_KEY","unused"),
         )
 
     #### FC methods ####
@@ -45,9 +46,10 @@ class QwenAPIHandler(OpenAICompletionsHandler):
             model=self.model_name.replace("-FC", ""),
             tools=tools,
             parallel_tool_calls=True,
-            extra_body={
-                "enable_thinking": True
-            },
+            max_completion_tokens=2048,
+            tool_choice=os.getenv("TOOL_CHOICE", "auto"),
+            extra_body={"chat_template_kwargs": json.loads(os.getenv("CHAT_TEMPLATE_KWARGS", "{}"))},
+            temperature=self.temperature,
             stream=True,
             stream_options={
                 "include_usage": True

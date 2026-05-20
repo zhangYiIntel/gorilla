@@ -36,6 +36,13 @@ def get_args():
     parser.add_argument("--include-input-log", action="store_true", default=False)
     parser.add_argument("--exclude-state-log", action="store_true", default=False)
     parser.add_argument("--num-threads", required=False, type=int)
+    parser.add_argument(
+        "--num-samples",
+        required=False,
+        type=int,
+        default=None,
+        help="Only run the first N benchmark entries after category expansion (useful for quick smoke tests).",
+    )
     parser.add_argument("--num-gpus", default=1, type=int)
     parser.add_argument("--backend", default="vllm", type=str, choices=["vllm", "sglang"])
     parser.add_argument("--gpu-memory-utilization", default=0.9, type=float)
@@ -354,6 +361,17 @@ def main(args):
         all_test_entries_involved,
     ) = get_involved_test_entries(args.test_category, args.run_ids)
 
+    if args.num_samples is not None:
+        if args.num_samples <= 0:
+            raise ValueError("--num-samples must be a positive integer.")
+
+        all_test_entries_involved = sorted(all_test_entries_involved, key=sort_key)[
+            : args.num_samples
+        ]
+        tqdm.write(
+            f"Running only the first {args.num_samples} test case(s) after category expansion."
+        )
+
     for model_name in args.model:
         if model_name not in MODEL_CONFIG_MAPPING:
             raise ValueError(
@@ -365,7 +383,12 @@ def main(args):
     if args.run_ids:
         tqdm.write("Running specific test cases. Ignoring `--test-category` argument.")
     else:
-        tqdm.write(f"Running full test cases for categories: {all_test_categories}.")
+        if args.num_samples is None:
+            tqdm.write(f"Running full test cases for categories: {all_test_categories}.")
+        else:
+            tqdm.write(
+                f"Running a sampled subset for categories: {all_test_categories}."
+            )
 
     if any(is_format_sensitivity(test_category) for test_category in all_test_categories):
         for model_name in args.model:

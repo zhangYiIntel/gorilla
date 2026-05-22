@@ -46,7 +46,7 @@ class QwenAPIHandler(OpenAICompletionsHandler):
             model=self.model_name.replace("-FC", ""),
             tools=tools,
             parallel_tool_calls=True,
-            max_completion_tokens=2048,
+            max_tokens=2048,
             tool_choice=os.getenv("TOOL_CHOICE", "auto"),
             extra_body={"chat_template_kwargs": json.loads(os.getenv("CHAT_TEMPLATE_KWARGS", "{}"))},
             temperature=self.temperature,

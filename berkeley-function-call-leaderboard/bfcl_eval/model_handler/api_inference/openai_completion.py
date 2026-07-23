@@ -110,6 +110,9 @@ class OpenAICompletionsHandler(BaseHandler):
         return inference_data
 
     def _parse_query_response_FC(self, api_response: Any) -> dict:
+        usage = getattr(api_response, "usage", None)
+        prompt_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+        completion_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
         try:
             model_responses = [
                 {func_call.function.name: func_call.function.arguments}
@@ -128,8 +131,8 @@ class OpenAICompletionsHandler(BaseHandler):
             "model_responses": model_responses,
             "model_responses_message_for_chat_history": model_responses_message_for_chat_history,
             "tool_call_ids": tool_call_ids,
-            "input_token": api_response.usage.prompt_tokens,
-            "output_token": api_response.usage.completion_tokens,
+            "input_token": prompt_tokens,
+            "output_token": completion_tokens,
         }
 
     def add_first_turn_message_FC(
@@ -239,11 +242,14 @@ class OpenAICompletionsHandler(BaseHandler):
         return {"message": []}
 
     def _parse_query_response_prompting(self, api_response: Any) -> dict:
+        usage = getattr(api_response, "usage", None)
+        prompt_tokens = getattr(usage, "prompt_tokens", 0) if usage else 0
+        completion_tokens = getattr(usage, "completion_tokens", 0) if usage else 0
         return {
             "model_responses": api_response.choices[0].message.content,
             "model_responses_message_for_chat_history": api_response.choices[0].message,
-            "input_token": api_response.usage.prompt_tokens,
-            "output_token": api_response.usage.completion_tokens,
+            "input_token": prompt_tokens,
+            "output_token": completion_tokens,
         }
 
     def add_first_turn_message_prompting(

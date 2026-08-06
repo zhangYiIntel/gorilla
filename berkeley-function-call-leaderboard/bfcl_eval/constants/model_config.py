@@ -2201,9 +2201,9 @@ third_party_inference_model_map = {
         is_fc_model=True,
         underscore_to_dot=True,
     ),
-    "ovms-model": ModelConfig(
-        model_name="ovms-model",
-        display_name="ovms-model",
+    "qwen3-omni": ModelConfig(
+        model_name="qwen3-omni",
+        display_name="qwen3-omni",
         url="http://localhost:8000/v3",
         org="ovms",
         license="apache-2.0",
